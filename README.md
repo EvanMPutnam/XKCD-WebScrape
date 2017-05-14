@@ -6,5 +6,5 @@ a text file with all titles and alt-texts.
 
 
 Dependencies:
-  Beautiful Soup
+  Beautiful Soup,
   Requests
