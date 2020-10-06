@@ -2,22 +2,18 @@
 Author: Evan Putnam
 Description: Web scrapes XKCD for their web comics.
 Language: Python 3
-Dependencies: Beautiful Soup, Requests
+Dependencies: Beautiful Soup, Requests, lxml
 """
 
 from bs4 import BeautifulSoup
 import requests
 import urllib
 
+# constant for the web url
+MAIN_URL = "xkcd.com/"
 
-
-def MAIN_URL():
-    '''
-    Returns the constant for the web url
-    :return xkcd url constant: 
-    '''
-    return "xkcd.com/"
-
+# Debug constant
+DEBUG = True
 
 def searchWebSite(staringNum, endingNum, indiv = True):
     '''
@@ -27,29 +23,32 @@ def searchWebSite(staringNum, endingNum, indiv = True):
     :param indiv if you want an individual text file for each: 
     :return lst of alt-text/description info: 
     '''
-    #Array for holding the text information on each comic like alt-txt, description, etc.
+    # Array for holding the text information on each comic like alt-txt, description, etc.
     lst = []
     for i in range(staringNum, endingNum):
         try:
-            #Get html data
-            url = MAIN_URL() + str(i) + "/"
+            # Get html data
+            url = MAIN_URL + str(i) + "/"
             r = requests.get("http://"+url)
             data = r.text
             soup = BeautifulSoup(data, 'lxml')
 
-            #Get image data
+            # Get image data
             comicImage = soup.find('div',{"id":"comic"})
             comicImageTag = comicImage.find("img")
 
-            #Make into acceptable url
+            # Make into acceptable url
             comicURL = comicImageTag['src']
             comicURL = comicURL[2:]
 
+            # Comic title + alt text info.
             comicAlt = comicImageTag['alt']
             comicTitle = comicImageTag['title']
 
+            # Add data to structure.
             lst.append([str(i),comicAlt, comicTitle])
 
+            # Generate individual text file of alt texts for each item.
             pathVal = str(i)+'txt'
             if(indiv == True):
                 file = open(pathVal, "w")
@@ -57,24 +56,25 @@ def searchWebSite(staringNum, endingNum, indiv = True):
                 file.write("Title: "+comicTitle)
                 file.close()
 
-
+            # Some debug info.
             print(i,":",comicURL)
             print()
 
-            #Extension name and type
-
-
+            # Extension name and type
             ext = str(i)+"."+comicURL[-3:]
             fileEx = comicURL[-3:]
 
-            #Was getting some weird file extensions otherwise.
+            # Limit filetype to images + download.
             if fileEx in ["jpg", "gif", "png"]:
-                #Download the image
+                # Download the image
                 urllib.request.urlretrieve("https://"+comicURL,ext)
 
-        except:
+        except Exception as e:
+            if DEBUG:
+                print (e)
             print("Error Page: ", i)
-    #Return list object for master census.
+
+    # Return list object for master census.
     return lst
 
 
@@ -107,5 +107,5 @@ def getImages(imgNum):
 
 
 if __name__ == '__main__':
-    #Gets the images from 1 to input num
+    # Gets the images from 1 to input num
     getImages(int(input("Enter Max Comic Num: ")))
