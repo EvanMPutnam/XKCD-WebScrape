@@ -6,3 +6,4 @@ This is a simple console application that downloads all xkcd comics to the curre
 ## Dependencies
 - Beautiful Soup
 - Requests
+- lxml
