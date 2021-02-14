@@ -11,9 +11,13 @@ TODO: Make a way to download only a single image if desired.
 from bs4 import BeautifulSoup
 import requests
 import urllib
+import os
 
 # constant for the web url
 MAIN_URL = "xkcd.com/"
+
+# Sub-folder to save content into.
+SAVE_FOLDER = os.getcwd() + "/downloads"
 
 # Debug constant
 DEBUG = True
@@ -58,8 +62,10 @@ def gatherImage(i, lst, indiv = True):
 
     # Limit filetype to images + download.
     if fileEx in ["jpg", "gif", "png"]:
-        # Download the image
+        # Download the image and relocate it to downloads folder.
         urllib.request.urlretrieve("https://"+comicURL,ext)
+    
+    
 
 
 
@@ -72,6 +78,14 @@ def searchWebSite(staringNum, endingNum, indiv = True):
     :param indiv if you want an individual text file for each: 
     :return lst of alt-text/description info: 
     '''
+    # Create the download folder if it does not exist.
+    if not os.path.exists(SAVE_FOLDER):
+        os.mkdir(SAVE_FOLDER)
+    
+    # Change directory over to the save folder.
+    currDir = os.getcwd()
+    os.chdir(SAVE_FOLDER)
+    
     # Array for holding the text information on each comic like alt-txt, description, etc.
     lst = []
     for i in range(staringNum, endingNum):
@@ -81,6 +95,9 @@ def searchWebSite(staringNum, endingNum, indiv = True):
             if DEBUG:
                 print (e)
             print("Error Page: ", i)
+
+    # Swap to original directory.
+    os.chdir(currDir)
 
     # Return list object for master census.
     return lst
@@ -93,7 +110,7 @@ def makeCensus(lst):
     :param lst: 
     :return: 
     '''
-    file = open("Master.txt", "w")
+    file = open(SAVE_FOLDER + "/Master.txt", "w")
     for elem in lst:
         try:
             file.write("Image: "+elem[0]+"\n")
